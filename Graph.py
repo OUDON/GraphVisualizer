@@ -12,20 +12,23 @@ TIME_STEP           = 0.5
 DAMPING_COEFFICIENT = 0.8
 
 class Edge:
-    def __init__(self, to, weight):
-        self.to = to
-        self.weight = weight
+    def __init__(self, to, weight, edge_type):
+        self.to        = to
+        self.weight    = weight
+        self.edge_type = edge_type
 
 class Graph:
-    def __init__(self, file_name, weighted=False):
+    def __init__(self, file_name, weighted=False, directed=False):
+        self.weighted = weighted
+        self.directed = directed
         self.__load(file_name, weighted)
-        if weighted:
-            self.__weight_normalize()
+        if weighted: self.__weight_normalize()
     
     def dump(self):
         for u in range(self.N):
             print("{}: ".format(u+1), end='')
             for edge in self.graph[u]:
+                if edge.edge_type == 'directed-inverse': continue
                 print("{} ".format(edge.to+1), end='')
             print("")
 
@@ -48,12 +51,17 @@ class Graph:
                 splitted_line = line.split(' ')
                 u, v = int(splitted_line[0]) - 1, int(splitted_line[1]) - 1
                 weight = int(splitted_line[2]) if weighted else 1
-                self.graph[u].append(Edge(v, weight))
-                self.graph[v].append(Edge(u, weight))
+
+                if self.directed:
+                    self.graph[u].append(Edge(v, weight, 'directed'))
+                    self.graph[v].append(Edge(u, weight, 'directed-inverse'))
+                else:
+                    self.graph[u].append(Edge(v, weight, 'undirected'))
+                    self.graph[v].append(Edge(u, weight, 'undirected'))
 
 class VisualizableGraph(Graph):
-    def __init__(self, file_name, weighted=False):
-        Graph.__init__(self, file_name, weighted)
+    def __init__(self, file_name, weighted=False, directed=False):
+        Graph.__init__(self, file_name, weighted, directed)
         self.compute_node_position()
 
     def show(self):
@@ -125,8 +133,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('file_name', type=str)
     parser.add_argument('--weighted', action='store_true')
+    parser.add_argument('--directed', action='store_true')
     args = parser.parse_args()
 
-    G = VisualizableGraph(args.file_name, args.weighted)
+    G = VisualizableGraph(args.file_name, args.weighted, args.directed)
     G.dump()
     G.show()
