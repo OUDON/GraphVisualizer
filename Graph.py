@@ -73,6 +73,16 @@ class VisualizableGraph(Graph):
                          [self.pos[u][1], self.pos[v][1]])
         plt.show()
 
+    def position_normalize(self, width, height, mergin):
+        x_range = np.amax(self.pos.T[0]) - np.amin(self.pos.T[0])
+        x_min   = np.amin(self.pos.T[0])
+        y_range = np.amax(self.pos.T[1]) - np.amin(self.pos.T[1])
+        y_min   = np.amin(self.pos.T[1])
+
+        for i in range(self.N):
+            self.pos[i][0] = (self.pos[i][0] - x_min) * width / x_range + mergin
+            self.pos[i][1] = (self.pos[i][1] - y_min) * height / y_range + mergin
+
     def compute_node_position(self):
         vs = np.zeros([self.N, 2])
         self.pos = np.random.randint(-300, 300, size=(self.N, 2)) * 1.0
