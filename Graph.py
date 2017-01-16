@@ -18,12 +18,39 @@ class Edge:
         self.edge_type = edge_type
 
 class Graph:
-    def __init__(self, file_name, weighted=False, directed=False):
-        self.weighted = weighted
-        self.directed = directed
-        self.__load(file_name, weighted)
-        if weighted: self.__weight_normalize()
+    def __init__(self):
+        self.N, self.M = 0, 0
+        self.weighted  = False
+        self.directed  = False
+        self.graph     = []
     
+    def load(self, graph_str, directed=False, weighted=False):
+        graph_str = graph_str.rstrip().split('\n')
+        splitted_line = graph_str[0].split(' ')
+        self.N, self.M = int(splitted_line[0]), int(splitted_line[1])
+        self.graph = [[] for i in range(self.N)]
+
+        self.directed = directed
+        self.weighted = weighted
+
+        for line in graph_str[1:]:
+            splitted_line = line.split(' ')
+            u, v = int(splitted_line[0]) - 1, int(splitted_line[1]) - 1
+            weight = int(splitted_line[2]) if weighted else 1
+
+            if self.directed:
+                self.graph[u].append(Edge(v, weight, 'directed'))
+                self.graph[v].append(Edge(u, weight, 'directed-inverse'))
+            else:
+                self.graph[u].append(Edge(v, weight, 'undirected'))
+                self.graph[v].append(Edge(u, weight, 'undirected'))
+        if weighted: self.__weight_normalize()
+
+    def load_from_file(self, file_name, directed=False, weighted=False):
+        with open(file_name) as f:
+            graph_str = f.read()
+            self.load(graph_str, directed, weighted)
+
     def dump(self):
         for u in range(self.N):
             print("{}: ".format(u+1), end='')
@@ -41,27 +68,13 @@ class Graph:
             for edge in self.graph[u]:
                 edge.weight /= max_weight
 
-    def __load(self, file_name, weighted=False):
-        with open(file_name, 'r') as f:
-            splitted_line = f.readline().split(' ')
-            self.N, self.M = int(splitted_line[0]), int(splitted_line[1])
-            self.graph = [[] for i in range(self.N)]
-
-            for line in f:
-                splitted_line = line.split(' ')
-                u, v = int(splitted_line[0]) - 1, int(splitted_line[1]) - 1
-                weight = int(splitted_line[2]) if weighted else 1
-
-                if self.directed:
-                    self.graph[u].append(Edge(v, weight, 'directed'))
-                    self.graph[v].append(Edge(u, weight, 'directed-inverse'))
-                else:
-                    self.graph[u].append(Edge(v, weight, 'undirected'))
-                    self.graph[v].append(Edge(u, weight, 'undirected'))
-
 class VisualizableGraph(Graph):
-    def __init__(self, file_name, weighted=False, directed=False):
-        Graph.__init__(self, file_name, weighted, directed)
+    def __init__(self):
+        Graph.__init__(self)
+        self.pos = []
+
+    def load(self, graph_str, directed=False, weighted=False):
+        Graph.load(self, graph_str, directed, weighted)
         self.compute_node_position()
 
     def show(self):
@@ -142,10 +155,15 @@ class VisualizableGraph(Graph):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('file_name', type=str)
-    parser.add_argument('--weighted', action='store_true')
     parser.add_argument('--directed', action='store_true')
+    parser.add_argument('--weighted', action='store_true')
     args = parser.parse_args()
 
-    G = VisualizableGraph(args.file_name, args.weighted, args.directed)
+    with open(args.file_name) as f:
+        graph_str = f.read()
+    graph_str = graph_str.rstrip()
+
+    G = VisualizableGraph()
+    G.load(graph_str, args.directed, args.weighted)
     G.dump()
     G.show()
