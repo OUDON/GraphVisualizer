@@ -12,17 +12,13 @@ class GraphView(QtGui.QGraphicsItem):
         self.size   = size
         self.mergin = 50
 
-        self.graph = VisualizableGraph()
-        self.graph.load_from_file('data/graph4.txt')
-        self.resizeGraph()
-
     def resizeGraph(self):
         w = self.width - self.mergin*2
         h = self.height - self.mergin*2
         self.graph.position_normalize(w, h, self.mergin)
 
-    def loadGraph(self, graph_str, directed=False, weighted=False):
-        self.graph.load(graph_str, directed, weighted)
+    def setGraph(self, graph):
+        self.graph = graph
         self.resizeGraph()
         self.update()
 

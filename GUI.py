@@ -19,12 +19,19 @@ class MainWindow(QtGui.QWidget):
         self.scene.addItem(self.graphView)
 
         self.ui.button_draw.clicked.connect(self.loadGraph)
+        self.initGraphView()
+
+    def initGraphView(self):
+        self.graph = VisualizableGraph()
+        self.graph.load_from_file('data/graph4.txt')
+        self.graphView.setGraph(self.graph)
 
     def loadGraph(self):
         graph_str = self.ui.text_graph.toPlainText()
         directed  = self.ui.radiobtn_directed.isChecked()
         weighted  = self.ui.checkbox_weighted.isChecked()
-        self.graphView.loadGraph(graph_str, directed, weighted)
+        self.graph.load(graph_str, directed, weighted)
+        self.graphView.setGraph(self.graph)
 
 def main():
     app = QtGui.QApplication(sys.argv)
