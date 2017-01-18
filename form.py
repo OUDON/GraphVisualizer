@@ -25,7 +25,7 @@ except AttributeError:
 class Ui_GraphVisualizer(object):
     def setupUi(self, GraphVisualizer):
         GraphVisualizer.setObjectName(_fromUtf8("GraphVisualizer"))
-        GraphVisualizer.resize(680, 369)
+        GraphVisualizer.resize(680, 524)
         self.horizontalLayout_2 = QtGui.QHBoxLayout(GraphVisualizer)
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
         self.verticalLayout = QtGui.QVBoxLayout()
@@ -53,6 +53,7 @@ class Ui_GraphVisualizer(object):
         self.verticalLayout.addWidget(self.button_draw)
         self.horizontalLayout_2.addLayout(self.verticalLayout)
         self.graphicsView = QtGui.QGraphicsView(GraphVisualizer)
+        self.graphicsView.setMinimumSize(QtCore.QSize(500, 500))
         self.graphicsView.setResizeAnchor(QtGui.QGraphicsView.NoAnchor)
         self.graphicsView.setObjectName(_fromUtf8("graphicsView"))
         self.horizontalLayout_2.addWidget(self.graphicsView)
