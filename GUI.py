@@ -30,7 +30,6 @@ class MainWindow(QtGui.QWidget):
         directed  = self.ui.radiobtn_directed.isChecked()
         weighted  = self.ui.checkbox_weighted.isChecked()
         self.graph.load(graph_str, directed, weighted)
-        # self.graphView.setGraph(self.graph)
 
 def main():
     app = QtGui.QApplication(sys.argv)

@@ -58,6 +58,12 @@ class Graph(object):
             graph_str = f.read()
             self.load(graph_str, directed, weighted)
 
+    def is_weighted(self):
+        return self.weighted
+
+    def is_directed(self):
+        return self.directed
+
     def dump(self):
         for u in range(self.N):
             print("{}: ".format(u+1), end='')
@@ -84,6 +90,7 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
         self.width = width
         self.height = height
         self.mergin = mergin
+        self.__init_paint()
 
     def load(self, graph_str, directed=False, weighted=False):
         Graph.load(self, graph_str, directed, weighted)
@@ -163,20 +170,22 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
             self.pos[i][1] -= gy
 
     # Methods for QtGui.QGraphicsItem
+    def __init_paint(self):
+        self.__pen_black = QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.SolidLine)
+        self.__no_pen    = QtCore.Qt.NoPen
+
     def paint(self, painter, option, widget):
         self.__draw_graph(painter)
 
     def __draw_graph(self, painter):
         G = self.graph
-        pen = QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.SolidLine)
-        painter.setPen(pen)
+        painter.setPen(self.__pen_black)
         painter.setBrush(QtCore.Qt.white)
 
         for u in range(self.N):
           for edge in G[u]:
               self.__draw_edge(edge, painter)
 
-        #"""
         # node
         for u in range(self.N):
             x, y = self.pos[u][0], self.pos[u][1]
@@ -187,11 +196,9 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
         for u in range(self.N):
             x, y = self.pos[u][0], self.pos[u][1]
             painter.drawText(x-20, y-20, 40, 40, QtCore.Qt.AlignCenter, str(u+1))
-        #"""
 
     def __draw_edge(self, edge, painter):
         u, v = edge.frm, edge.to
-        # f, t = self.pos[u], self.pos[v]
         tmp_f, tmp_t = self.pos[u], self.pos[v]
         direction = (tmp_t - tmp_f) / np.linalg.norm(tmp_t - tmp_f)
         f = tmp_f + direction * 20
@@ -201,10 +208,18 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
         dy = (t - f)[1]
         length = np.linalg.norm(t - f)
 
-        if edge.edge_type == 'undirected':
-            painter.drawLine(f[0], f[1], t[0], t[1])
+        painter.drawLine(f[0], f[1], t[0], t[1])
+        if self.is_weighted():
+            center = f + direction * length / 2
 
-        elif edge.edge_type == 'directed':
+            painter.setPen(self.__no_pen)
+            painter.drawRect(center[0]-10, center[1]-10, 20, 20)
+            painter.setPen(self.__pen_black)
+
+            painter.setFont(QtGui.QFont('Helvetica', 16))
+            painter.drawText(center[0]-40, center[1]-20, 80, 40, QtCore.Qt.AlignCenter, str(edge.weight))
+
+        if edge.edge_type == 'directed':
             angle = math.acos(dx / length)
             if dy >= 0:
                 angle = 2 * math.pi - angle
@@ -218,13 +233,9 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
                 math.cos(angle - math.pi * 2 / 3) * 15
             ])
 
-            painter.drawLine(f[0], f[1], t[0], t[1])
             painter.drawLine(v1[0], v1[1], t[0], t[1])
             painter.drawLine(v2[0], v2[1], t[0], t[1])
-
-        elif edge.edge_type == 'directed-inverse':
-            pass
-
+        
     def boundingRect(self):
         return QtCore.QRectF(0, 0, self.width, self.height)
 
