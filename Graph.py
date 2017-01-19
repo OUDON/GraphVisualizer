@@ -14,15 +14,47 @@ TIME_STEP           = 0.5
 DAMPING_COEFFICIENT = 0.8
 
 class Edge:
-    def __init__(self, frm, to, weight, edge_type):
-        self.frm               = frm
-        self.to                = to
-        self.weight            = weight
+    def __init__(self, args):
+        self.frm               = args['frm']
+        self.to                = args['to']
+        self.edge_type         = args['edge_type']
+        self.weight            = args.get('weight', 1)
+        self.node_pos_frm      = args.get('pos_frm', None)
+        self.node_pos_to       = args.get('pos_to', None)
         self.normalized_weight = 1
-        self.edge_type         = edge_type
+
+    def update_edge_pos(self, pos_frm, pos_to, node_radius=20):
+        self.node_pos_frm = pos_frm
+        self.node_pos_to  = pos_to
+        self._adjust(node_radius)
+
+    def _adjust(self, node_radius=20):
+        vec = self.node_pos_to - self.node_pos_frm
+        direction = vec / np.linalg.norm(vec)
+        self.pos_frm = self.node_pos_frm + direction * 20
+        self.pos_to  = self.node_pos_to - direction * 20
 
     def weight_normalize(self, max_weight):
         self.normalized_weight = self.weight / max_weight
+
+    def make_edge_type(directed=False, inverse=False):
+        if directed:
+            edge_type = 'directed' if not inverse else 'directed-inverse'
+        else:
+            edge_type = 'undirected'
+        return edge_type
+
+    def dx(self):
+        return (self.pos_to - self.pos_frm)[0]
+
+    def dy(self):
+        return (self.pos_to - self.pos_frm)[1]
+
+    def length(self):
+        return np.linalg.norm(self.pos_to - self.pos_frm)
+
+    def direction(self):
+        return (self.pos_to - self.pos_frm) / self.length()
 
 class Graph(object):    
     def __init__(self):
@@ -46,12 +78,21 @@ class Graph(object):
             weight = int(splitted_line[2]) if weighted else 1
 
             if self.directed:
-                self.graph[u].append(Edge(u, v, weight, 'directed'))
-                self.graph[v].append(Edge(v, u, weight, 'directed-inverse'))
+                self.graph[u].append(self.__make_edge(u, v, weight))
+                self.graph[v].append(self.__make_edge(v, u, weight, inverse=True))
             else:
-                self.graph[u].append(Edge(u, v, weight, 'undirected'))
-                self.graph[v].append(Edge(v, u, weight, 'undirected'))
+                self.graph[u].append(self.__make_edge(u, v, weight))
+                self.graph[v].append(self.__make_edge(v, u, weight))
         if weighted: self.__weight_normalize()
+
+    def __make_edge(self, frm, to, weight, inverse=False):
+        edge = Edge({
+             'frm':       frm,
+             'to':        to,
+             'weight':    weight,
+             'edge_type': Edge.make_edge_type(self.directed, inverse),
+        })
+        return edge
 
     def load_from_file(self, file_name, directed=False, weighted=False):
         with open(file_name) as f:
@@ -92,16 +133,24 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
         self.mergin = mergin
         self.__init_paint()
 
+        self.node_radius = 20
+
     def load(self, graph_str, directed=False, weighted=False):
         Graph.load(self, graph_str, directed, weighted)
         self.compute_node_position()
         self.resize_graph()
+        self.update_edge_pos()
         self.update()
 
     def resize_graph(self):
         w = self.width - self.mergin*2
         h = self.height - self.mergin*2
         self.__position_normalize(w, h, self.mergin)
+
+    def update_edge_pos(self):
+        for u in range(self.N):
+            for edge in self.graph[u]:
+                edge.update_edge_pos(self.pos[u], self.pos[edge.to], self.node_radius)
 
     def __position_normalize(self, width, height, mergin):
         x_range = np.amax(self.pos.T[0]) - np.amin(self.pos.T[0])
@@ -199,14 +248,8 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
 
     def __draw_edge(self, edge, painter):
         u, v = edge.frm, edge.to
-        tmp_f, tmp_t = self.pos[u], self.pos[v]
-        direction = (tmp_t - tmp_f) / np.linalg.norm(tmp_t - tmp_f)
-        f = tmp_f + direction * 20
-        t = tmp_t - direction * 20
-
-        dx = (t - f)[0]
-        dy = (t - f)[1]
-        length = np.linalg.norm(t - f)
+        direction = edge.direction()
+        f, t = edge.pos_frm, edge.pos_to
 
         painter.drawLine(f[0], f[1], t[0], t[1])
         if self.is_weighted():
@@ -220,8 +263,8 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
             painter.drawText(center[0]-40, center[1]-20, 80, 40, QtCore.Qt.AlignCenter, str(edge.weight))
 
         if edge.edge_type == 'directed':
-            angle = math.acos(dx / length)
-            if dy >= 0:
+            angle = math.acos(edge.dx() / edge.length())
+            if edge.dy() >= 0:
                 angle = 2 * math.pi - angle
             v1 = t + np.array([
                 math.sin(angle - math.pi / 3) * 15,
