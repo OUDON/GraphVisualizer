@@ -3,7 +3,6 @@ import sys
 from PyQt4 import QtGui, QtCore
 from Graph import VisualizableGraph
 from form import Ui_GraphVisualizer
-from graph_view import GraphView
 
 class MainWindow(QtGui.QWidget):
     def __init__(self, parent=None):
