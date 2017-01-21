@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'form.ui'
+# Form implementation generated from reading ui file 'mainwindow.ui'
 #
 # Created by: PyQt4 UI code generator 4.11.4
 #
@@ -22,48 +22,58 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
-class Ui_GraphVisualizer(object):
-    def setupUi(self, GraphVisualizer):
-        GraphVisualizer.setObjectName(_fromUtf8("GraphVisualizer"))
-        GraphVisualizer.resize(680, 524)
-        self.horizontalLayout_2 = QtGui.QHBoxLayout(GraphVisualizer)
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName(_fromUtf8("MainWindow"))
+        MainWindow.resize(800, 600)
+        self.centralwidget = QtGui.QWidget(MainWindow)
+        self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
+        self.horizontalLayout_2 = QtGui.QHBoxLayout(self.centralwidget)
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
         self.verticalLayout = QtGui.QVBoxLayout()
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
-        self.text_graph = QtGui.QTextEdit(GraphVisualizer)
+        self.text_graph = QtGui.QTextEdit(self.centralwidget)
         self.text_graph.setObjectName(_fromUtf8("text_graph"))
         self.verticalLayout.addWidget(self.text_graph)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
-        self.radiobtn_undirected = QtGui.QRadioButton(GraphVisualizer)
+        self.radiobtn_undirected = QtGui.QRadioButton(self.centralwidget)
         self.radiobtn_undirected.setChecked(True)
         self.radiobtn_undirected.setObjectName(_fromUtf8("radiobtn_undirected"))
         self.horizontalLayout.addWidget(self.radiobtn_undirected)
-        self.radiobtn_directed = QtGui.QRadioButton(GraphVisualizer)
+        self.radiobtn_directed = QtGui.QRadioButton(self.centralwidget)
         self.radiobtn_directed.setObjectName(_fromUtf8("radiobtn_directed"))
         self.horizontalLayout.addWidget(self.radiobtn_directed)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.checkbox_weighted = QtGui.QCheckBox(GraphVisualizer)
+        self.checkbox_weighted = QtGui.QCheckBox(self.centralwidget)
         self.checkbox_weighted.setObjectName(_fromUtf8("checkbox_weighted"))
         self.verticalLayout.addWidget(self.checkbox_weighted)
-        self.button_draw = QtGui.QPushButton(GraphVisualizer)
+        self.button_draw = QtGui.QPushButton(self.centralwidget)
         self.button_draw.setObjectName(_fromUtf8("button_draw"))
         self.verticalLayout.addWidget(self.button_draw)
         self.horizontalLayout_2.addLayout(self.verticalLayout)
-        self.graphicsView = QtGui.QGraphicsView(GraphVisualizer)
+        self.graphicsView = QtGui.QGraphicsView(self.centralwidget)
         self.graphicsView.setMinimumSize(QtCore.QSize(500, 500))
         self.graphicsView.setResizeAnchor(QtGui.QGraphicsView.NoAnchor)
         self.graphicsView.setObjectName(_fromUtf8("graphicsView"))
         self.horizontalLayout_2.addWidget(self.graphicsView)
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtGui.QMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 22))
+        self.menubar.setObjectName(_fromUtf8("menubar"))
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtGui.QStatusBar(MainWindow)
+        self.statusbar.setObjectName(_fromUtf8("statusbar"))
+        MainWindow.setStatusBar(self.statusbar)
 
-        self.retranslateUi(GraphVisualizer)
-        QtCore.QMetaObject.connectSlotsByName(GraphVisualizer)
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def retranslateUi(self, GraphVisualizer):
-        GraphVisualizer.setWindowTitle(_translate("GraphVisualizer", "GraphVisualizer", None))
-        self.text_graph.setHtml(_translate("GraphVisualizer", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+    def retranslateUi(self, MainWindow):
+        MainWindow.setWindowTitle(_translate("MainWindow", "Graph VIsualizer", None))
+        self.text_graph.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'.SF NS Text\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
@@ -85,8 +95,8 @@ class Ui_GraphVisualizer(object):
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt;\">12 13</span></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt;\">10 13</span></p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", None))
-        self.radiobtn_undirected.setText(_translate("GraphVisualizer", "無向", None))
-        self.radiobtn_directed.setText(_translate("GraphVisualizer", "有向", None))
-        self.checkbox_weighted.setText(_translate("GraphVisualizer", "重み付き", None))
-        self.button_draw.setText(_translate("GraphVisualizer", "描画", None))
+        self.radiobtn_undirected.setText(_translate("MainWindow", "無向", None))
+        self.radiobtn_directed.setText(_translate("MainWindow", "有向", None))
+        self.checkbox_weighted.setText(_translate("MainWindow", "重み付き", None))
+        self.button_draw.setText(_translate("MainWindow", "描画", None))
 
