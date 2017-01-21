@@ -3,58 +3,19 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 from PyQt4 import QtGui, QtCore
+from Edge import Edge, Edges
 
 import argparse
 import sys
+
+from UnionFind import UnionFind
+import heapq
 
 COULOMB_CONSTANT    = 50.0
 SPRING_CONSTANT     = 1.0
 NATURAL_LENGTH_MAX  = 50
 TIME_STEP           = 0.5 
 DAMPING_COEFFICIENT = 0.8
-
-class Edge:
-    def __init__(self, args):
-        self.frm               = args['frm']
-        self.to                = args['to']
-        self.edge_type         = args['edge_type']
-        self.weight            = args.get('weight', 1)
-        self.node_pos_frm      = args.get('pos_frm', None)
-        self.node_pos_to       = args.get('pos_to', None)
-        self.normalized_weight = 1
-
-    def update_edge_pos(self, pos_frm, pos_to, node_radius=20):
-        self.node_pos_frm = pos_frm
-        self.node_pos_to  = pos_to
-        self._adjust(node_radius)
-
-    def _adjust(self, node_radius=20):
-        vec = self.node_pos_to - self.node_pos_frm
-        direction = vec / np.linalg.norm(vec)
-        self.pos_frm = self.node_pos_frm + direction * 20
-        self.pos_to  = self.node_pos_to - direction * 20
-
-    def weight_normalize(self, max_weight):
-        self.normalized_weight = self.weight / max_weight
-
-    def make_edge_type(directed=False, inverse=False):
-        if directed:
-            edge_type = 'directed' if not inverse else 'directed-inverse'
-        else:
-            edge_type = 'undirected'
-        return edge_type
-
-    def dx(self):
-        return (self.pos_to - self.pos_frm)[0]
-
-    def dy(self):
-        return (self.pos_to - self.pos_frm)[1]
-
-    def length(self):
-        return np.linalg.norm(self.pos_to - self.pos_frm)
-
-    def direction(self):
-        return (self.pos_to - self.pos_frm) / self.length()
 
 class Graph(object):    
     def __init__(self):
@@ -78,18 +39,19 @@ class Graph(object):
             weight = int(splitted_line[2]) if weighted else 1
 
             if self.directed:
-                self.graph[u].append(self.__make_edge(u, v, weight))
-                self.graph[v].append(self.__make_edge(v, u, weight, inverse=True))
+                self.graph[u].append(self._make_edge(u, v, weight))
+                self.graph[v].append(self._make_edge(v, u, weight, inverse=True))
             else:
-                self.graph[u].append(self.__make_edge(u, v, weight))
-                self.graph[v].append(self.__make_edge(v, u, weight))
+                self.graph[u].append(self._make_edge(u, v, weight))
+                self.graph[v].append(self._make_edge(v, u, weight))
         if weighted: self.__weight_normalize()
 
-    def __make_edge(self, frm, to, weight, inverse=False):
+    def _make_edge(self, frm, to, weight, inverse=False):
         edge = Edge({
              'frm':       frm,
              'to':        to,
              'weight':    weight,
+             'weighted':   self.is_weighted(),
              'edge_type': Edge.make_edge_type(self.directed, inverse),
         })
         return edge
@@ -122,15 +84,61 @@ class Graph(object):
             for edge in self.graph[u]:
                 edge.weight_normalize(max_weight)
 
+    def shortest_path(self, s, t):
+        dist = [float('inf')] * self.N
+        prev = [-1] * self.N
+        Q = []
+        dist[s] = 0
+        heapq.heappush(Q, (0, s))
+
+        while len(Q):
+            p = heapq.heappop(Q)
+            if p[0] > dist[p[1]]: continue
+            v = p[1]
+
+            for edge in self.graph[v]:
+                if edge.is_forward() and dist[edge.to] > dist[v] + edge.weight:
+                    dist[edge.to] = dist[v] + edge.weight
+                    prev[edge.to] = v
+                    heapq.heappush(Q, (dist[edge.to], edge.to))
+
+        path = []
+        u = t
+        while u != -1:
+            path.append(u)
+            u = prev[u]
+        path.reverse()
+        return dist[t], path
+
+    def mst(self):
+        union_find = UnionFind(self.N)
+
+        edges = []
+        for u in range(self.N):
+            for edge in self.graph[u]:
+                if u <= edge.to: continue
+                edges.append((u, edge.to, edge.weight))
+        edges.sort(key=lambda x:x[2])
+
+        weight_sum = 0
+        mst_edges  = []
+        for edge in edges:
+            if not union_find.is_same(edge[0], edge[1]):
+                union_find.merge(edge[0], edge[1])
+                mst_edges.append(edge)
+                weight_sum += edge[2]
+        return weight_sum, mst_edges
+
 class VisualizableGraph(QtGui.QGraphicsItem, Graph):
     def __init__(self, width=500, height=500, mergin=50):
         super(VisualizableGraph, self).__init__()
         Graph.__init__(self)
 
-        self.pos = []
-        self.width = width
-        self.height = height
-        self.mergin = mergin
+        self.pos               = []
+        self.width             = width
+        self.height            = height
+        self.mergin            = mergin
+        self.highlighted_edges = []
         self.__init_paint()
 
         self.node_radius = 20
@@ -141,6 +149,18 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
         self.resize_graph()
         self.update_edge_pos()
         self.update()
+
+    def _make_edge(self, frm, to, weight, inverse=False, highlight=False):
+        color = QtCore.Qt.red if highlight else QtCore.Qt.black
+        edge = Edge({
+             'frm':       frm,
+             'to':        to,
+             'weight':    weight,
+             'weighted':  self.is_weighted(),
+             'color':     color,
+             'edge_type': Edge.make_edge_type(self.directed, inverse),
+        })
+        return edge
 
     def resize_graph(self):
         w = self.width - self.mergin*2
@@ -218,9 +238,38 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
             self.pos[i][0] -= gx
             self.pos[i][1] -= gy
 
+    # Graph Algorithms
+    def shortest_path(self, s, t):
+        dist, path = Graph.shortest_path(self, s, t)
+        self.highlighted_edges = []
+
+        for i in range(len(path) - 1):
+            u, v = path[i], path[i+1]
+
+            for edge in self.graph[u]:
+                if edge.to == v:
+                    weight = edge.weight
+                    break
+
+            edge = self._make_edge(u, v, weight, highlight=True)
+            edge.update_edge_pos(self.pos[u], self.pos[v], self.node_radius)
+            self.highlighted_edges.append(edge)
+        self.update()
+
+    def mst(self):
+        weight_sum, edges = Graph.mst(self)
+        self.highlighted_edges = []
+
+        for e in edges:
+            edge = self._make_edge(e[0], e[1], e[2], highlight=True)
+            edge.update_edge_pos(self.pos[e[0]], self.pos[e[1]], self.node_radius)
+            self.highlighted_edges.append(edge)
+        self.update()
+
     # Methods for QtGui.QGraphicsItem
     def __init_paint(self):
         self.__pen_black = QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.SolidLine)
+        self.__pen_red   = QtGui.QPen(QtCore.Qt.red, 1, QtCore.Qt.SolidLine)
         self.__no_pen    = QtCore.Qt.NoPen
 
     def paint(self, painter, option, widget):
@@ -231,11 +280,12 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
         painter.setPen(self.__pen_black)
         painter.setBrush(QtCore.Qt.white)
 
-        for u in range(self.N):
-          for edge in G[u]:
-              self.__draw_edge(edge, painter)
+        self.__draw_edges(painter)
+        for edge in self.highlighted_edges:
+            edge.draw(painter)
 
         # node
+        painter.setPen(QtCore.Qt.black)
         for u in range(self.N):
             x, y = self.pos[u][0], self.pos[u][1]
             painter.drawEllipse(QtCore.QPointF(x, y), 20, 20)
@@ -246,38 +296,11 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
             x, y = self.pos[u][0], self.pos[u][1]
             painter.drawText(x-20, y-20, 40, 40, QtCore.Qt.AlignCenter, str(u+1))
 
-    def __draw_edge(self, edge, painter):
-        u, v = edge.frm, edge.to
-        direction = edge.direction()
-        f, t = edge.pos_frm, edge.pos_to
 
-        painter.drawLine(f[0], f[1], t[0], t[1])
-        if self.is_weighted():
-            center = f + direction * length / 2
-
-            painter.setPen(self.__no_pen)
-            painter.drawRect(center[0]-10, center[1]-10, 20, 20)
-            painter.setPen(self.__pen_black)
-
-            painter.setFont(QtGui.QFont('Helvetica', 16))
-            painter.drawText(center[0]-40, center[1]-20, 80, 40, QtCore.Qt.AlignCenter, str(edge.weight))
-
-        if edge.edge_type == 'directed':
-            angle = math.acos(edge.dx() / edge.length())
-            if edge.dy() >= 0:
-                angle = 2 * math.pi - angle
-            v1 = t + np.array([
-                math.sin(angle - math.pi / 3) * 15,
-                math.cos(angle - math.pi / 3) * 15
-            ])
-
-            v2 = t + np.array([
-                math.sin(angle - math.pi * 2 / 3) * 15,
-                math.cos(angle - math.pi * 2 / 3) * 15
-            ])
-
-            painter.drawLine(v1[0], v1[1], t[0], t[1])
-            painter.drawLine(v2[0], v2[1], t[0], t[1])
+    def __draw_edges(self, painter):
+        for u in range(self.N):
+          for edge in self.graph[u]:
+              edge.draw(painter)
         
     def boundingRect(self):
         return QtCore.QRectF(0, 0, self.width, self.height)
