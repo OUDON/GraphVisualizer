@@ -11,10 +11,10 @@ import sys
 from UnionFind import UnionFind
 import heapq
 
-COULOMB_CONSTANT    = 50.0
+COULOMB_CONSTANT    = 100.0
 SPRING_CONSTANT     = 1.0
-NATURAL_LENGTH_MAX  = 50
-TIME_STEP           = 0.5 
+NATURAL_LENGTH_MAX  = 30
+TIME_STEP           = 0.4 
 DAMPING_COEFFICIENT = 0.8
 
 class Graph(object):    
@@ -186,21 +186,20 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
             self.pos[i][1] = (self.pos[i][1] - y_min) * height / y_range + mergin
 
     def compute_node_position(self):
-        vs = np.zeros([self.N, 2])
-        self.pos = np.random.randint(-300, 300, size=(self.N, 2)) * 1.0
-        cnt = 1
-        while True:
-            cnt += 1
-            E = 0.0
-            for u in range(self.N):
-                F = np.zeros(2)
-                F += self.__compute_coulomb_force(u)
-                F += self.__compute_spring_force(u)
-                vs[u] = (vs[u] + TIME_STEP * F / 1.0) * DAMPING_COEFFICIENT
-                self.pos[u] += TIME_STEP * vs[u] +  (F / 1.0) * TIME_STEP ** 2 / 2.0
-                E += 1.0 * np.linalg.norm(vs[u]) ** 2 
-            self.__centering(self.pos.T[0], self.pos.T[1])
-            if E < 0.1 or cnt > 10000: break
+        for _ in range(10):
+            vs = np.zeros([self.N, 2])
+            self.pos = np.random.randint(-300, 300, size=(self.N, 2)) * 1.0
+            for cnt in range(1000):
+                E = 0.0
+                for u in range(self.N):
+                    F = np.zeros(2)
+                    F += self.__compute_coulomb_force(u)
+                    F += self.__compute_spring_force(u)
+                    vs[u] = (vs[u] + TIME_STEP * F / 1.0) * DAMPING_COEFFICIENT
+                    self.pos[u] += TIME_STEP * vs[u] +  (F / 1.0) * TIME_STEP ** 2 / 2.0
+                    E += 1.0 * np.linalg.norm(vs[u]) ** 2 
+                self.__centering(self.pos.T[0], self.pos.T[1])
+                if E < 0.01:  return
 
     def __compute_coulomb_force(self, u):
         F = np.zeros(2)
@@ -225,8 +224,10 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
             dy = self.pos[v][1] - self.pos[u][1]
 
             l = np.sqrt(dx * dx + dy * dy) + 1e-5
-            springLengthX = NATURAL_LENGTH_MAX * edge.normalized_weight * dx / l
-            springLengthY = NATURAL_LENGTH_MAX * edge.normalized_weight * dy / l
+            # springLengthX = NATURAL_LENGTH_MAX * edge.normalized_weight * dx / l
+            # springLengthY = NATURAL_LENGTH_MAX * edge.normalized_weight * dy / l
+            springLengthX = NATURAL_LENGTH_MAX  * dx / l
+            springLengthY = NATURAL_LENGTH_MAX  * dy / l
 
             F[0] += SPRING_CONSTANT * (dx - springLengthX)
             F[1] += SPRING_CONSTANT * (dy - springLengthY)
