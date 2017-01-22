@@ -38,7 +38,8 @@ class MainWindow(QtGui.QMainWindow, mainwindow.Ui_MainWindow):
         graph_str = self.text_graph.toPlainText()
         directed  = self.radiobtn_directed.isChecked()
         weighted  = self.checkbox_weighted.isChecked()
-        self.graph.load(graph_str, directed, weighted)
+        indexed   = int(self.radiobtn_indexed_1.isChecked())
+        self.graph.load(graph_str, directed, weighted, indexed)
 
     def open_shortest_path_dialog(self):
         self.shortest_path_dialog.show()
@@ -64,10 +65,10 @@ class ShortestPathDialog(QtGui.QDialog, shortest_path_dialog.Ui_ShortestPathDial
         self.parent.shortest_path(self._idx_from(), self._idx_to())
 
     def _idx_from(self):
-        return int(self.input_from.text()) - 1
+        return int(self.input_from.text())
 
     def _idx_to(self):
-        return int(self.input_to.text()) - 1
+        return int(self.input_to.text())
 
 def main():
     app = QtGui.QApplication(sys.argv)

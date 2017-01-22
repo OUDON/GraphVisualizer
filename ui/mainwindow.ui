@@ -49,45 +49,99 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QRadioButton" name="radiobtn_undirected">
-          <property name="text">
-           <string>無向</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radiobtn_directed">
-          <property name="text">
-           <string>有向</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
+       <widget class="QGroupBox" name="group1">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QRadioButton" name="radiobtn_indexed_0">
+           <property name="text">
+            <string>0-indexed</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">btngroup_indexed</string>
+           </attribute>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radiobtn_indexed_1">
+           <property name="text">
+            <string>1-indexed</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">btngroup_indexed</string>
+           </attribute>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkbox_weighted">
-        <property name="text">
-         <string>重み付き</string>
-        </property>
+       <widget class="QGroupBox" name="group2">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QRadioButton" name="radiobtn_undirected">
+           <property name="text">
+            <string>無向</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">btngroup_directed</string>
+           </attribute>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radiobtn_directed">
+           <property name="text">
+            <string>有向</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">btngroup_directed</string>
+           </attribute>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QCheckBox" name="checkbox_weighted">
+          <property name="text">
+           <string>重み付き</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QPushButton" name="button_draw">
@@ -133,11 +187,6 @@ p, li { white-space: pre-wrap; }
    </widget>
    <addaction name="menu"/>
   </widget>
-  <action name="actionSaitannkeiro">
-   <property name="text">
-    <string>shortest path</string>
-   </property>
-  </action>
   <action name="actionShortestPath">
    <property name="text">
     <string>最短経路</string>
@@ -156,4 +205,8 @@ p, li { white-space: pre-wrap; }
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="btngroup_directed"/>
+  <buttongroup name="btngroup_indexed"/>
+ </buttongroups>
 </ui>

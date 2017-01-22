@@ -20,14 +20,16 @@ DAMPING_COEFFICIENT = 0.8
 class Graph(object):    
     def __init__(self):
         self.N, self.M = 0, 0
+        self.indexed   = 1
         self.weighted  = False
         self.directed  = False
         self.graph     = []
     
-    def load(self, graph_str, directed=False, weighted=False):
+    def load(self, graph_str, directed=False, weighted=False, indexed=1):
         graph_str = graph_str.rstrip().split('\n')
         splitted_line = graph_str[0].split(' ')
         self.N, self.M = int(splitted_line[0]), int(splitted_line[1])
+        self.indexed = indexed
         self.graph = [[] for i in range(self.N)]
 
         self.directed = directed
@@ -35,7 +37,7 @@ class Graph(object):
 
         for line in graph_str[1:]:
             splitted_line = line.split(' ')
-            u, v = int(splitted_line[0]) - 1, int(splitted_line[1]) - 1
+            u, v = int(splitted_line[0]) - indexed, int(splitted_line[1]) - indexed
             weight = int(splitted_line[2]) if weighted else 1
 
             if self.directed:
@@ -56,10 +58,10 @@ class Graph(object):
         })
         return edge
 
-    def load_from_file(self, file_name, directed=False, weighted=False):
+    def load_from_file(self, file_name, directed=False, weighted=False, indexed=1):
         with open(file_name) as f:
             graph_str = f.read()
-            self.load(graph_str, directed, weighted)
+            self.load(graph_str, directed, weighted, indexed)
 
     def is_weighted(self):
         return self.weighted
@@ -85,6 +87,9 @@ class Graph(object):
                 edge.weight_normalize(max_weight)
 
     def shortest_path(self, s, t):
+        s -= self.indexed
+        t -= self.indexed
+
         dist = [float('inf')] * self.N
         prev = [-1] * self.N
         Q = []
@@ -145,8 +150,8 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
 
         self.node_radius = 20
 
-    def load(self, graph_str, directed=False, weighted=False):
-        Graph.load(self, graph_str, directed, weighted)
+    def load(self, graph_str, directed=False, weighted=False, indexed=1):
+        Graph.load(self, graph_str, directed, weighted, indexed)
         self.compute_node_position()
         self.resize_graph()
         self.update_edge_pos()
@@ -305,7 +310,7 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
         painter.setFont(QtGui.QFont('Helvetica', 24))
         for u in range(self.N):
             x, y = self.pos[u][0], self.pos[u][1]
-            painter.drawText(x-20, y-20, 40, 40, QtCore.Qt.AlignCenter, str(u+1))
+            painter.drawText(x-20, y-20, 40, 40, QtCore.Qt.AlignCenter, str(u+self.indexed))
 
         if self.algorithm_result != None:
             painter.setFont(QtGui.QFont('Helvetica', 20))
