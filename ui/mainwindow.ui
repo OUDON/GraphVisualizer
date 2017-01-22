@@ -119,8 +119,30 @@ p, li { white-space: pre-wrap; }
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>アルゴリズム</string>
+    </property>
+    <addaction name="actionShortestPath"/>
+    <addaction name="actionMST"/>
+   </widget>
+   <addaction name="menu"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionSaitannkeiro">
+   <property name="text">
+    <string>shortest path</string>
+   </property>
+  </action>
+  <action name="actionShortestPath">
+   <property name="text">
+    <string>最短経路</string>
+   </property>
+  </action>
+  <action name="actionMST">
+   <property name="text">
+    <string>最小全域木</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

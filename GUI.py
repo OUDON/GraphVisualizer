@@ -1,14 +1,19 @@
 # coding: utf-8
 import sys
+import functools
 from PyQt4 import QtGui, QtCore
 from Graph import VisualizableGraph
-import mainwindow
+
+from ui import mainwindow
+from ui import shortest_path_dialog
 
 class MainWindow(QtGui.QMainWindow, mainwindow.Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
 
         self.setupUi(self)
+        self.initMenuBar()
+        self.shortest_path_dialog = ShortestPathDialog(self)
 
         self.scene = QtGui.QGraphicsScene(self)
         self.scene.setSceneRect(0, 0, 500, 500)
@@ -20,6 +25,10 @@ class MainWindow(QtGui.QMainWindow, mainwindow.Ui_MainWindow):
         self.button_draw.clicked.connect(self.loadGraph)
         self.initGraph()
 
+    def initMenuBar(self):
+        self.actionShortestPath.triggered.connect(self.open_shortest_path_dialog)
+        self.actionMST.triggered.connect(self.mst)
+
     def initGraph(self):
         self.graph.load_from_file('data/graph4.txt')
 
@@ -28,6 +37,31 @@ class MainWindow(QtGui.QMainWindow, mainwindow.Ui_MainWindow):
         directed  = self.radiobtn_directed.isChecked()
         weighted  = self.checkbox_weighted.isChecked()
         self.graph.load(graph_str, directed, weighted)
+
+    def open_shortest_path_dialog(self):
+        self.shortest_path_dialog.show()
+
+    def shortest_path(self, idx_from, idx_to):
+        self.graph.shortest_path(idx_from, idx_to)
+
+    def mst(self):
+        self.graph.mst()
+
+class ShortestPathDialog(QtGui.QDialog, shortest_path_dialog.Ui_ShortestPathDialog):
+    def __init__(self, parent=None):
+        super(ShortestPathDialog, self).__init__(parent)
+        self.setupUi(self)
+        self.parent = parent
+        self.button_exec.clicked.connect(self.button_exec_clicked)
+
+    def button_exec_clicked(self):
+        self.parent.shortest_path(self._idx_from(), self._idx_to())
+
+    def _idx_from(self):
+        return int(self.input_from.text()) - 1
+
+    def _idx_to(self):
+        return int(self.input_to.text()) - 1
 
 def main():
     app = QtGui.QApplication(sys.argv)
