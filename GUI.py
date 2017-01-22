@@ -31,6 +31,9 @@ class MainWindow(QtGui.QMainWindow, mainwindow.Ui_MainWindow):
         self.actionMST.triggered.connect(self.mst)
         self.actionReset.triggered.connect(self.reset_algorithm_result)
 
+    def updateMenuBarEnabled(self):
+        self.actionMST.setEnabled(not self.graph.is_directed())
+
     def initGraph(self):
         self.graph.load_from_file('data/graph4.txt')
 
@@ -40,6 +43,7 @@ class MainWindow(QtGui.QMainWindow, mainwindow.Ui_MainWindow):
         weighted  = self.checkbox_weighted.isChecked()
         indexed   = int(self.radiobtn_indexed_1.isChecked())
         self.graph.load(graph_str, directed, weighted, indexed)
+        self.updateMenuBarEnabled()
 
     def open_shortest_path_dialog(self):
         self.shortest_path_dialog.show()
