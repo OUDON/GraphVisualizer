@@ -149,6 +149,7 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
         self.resize_graph()
         self.update_edge_pos()
         self.update()
+        self.highlighted_edges = []
 
     def _make_edge(self, frm, to, weight, inverse=False, highlight=False):
         color = QtCore.Qt.red if highlight else QtCore.Qt.black
