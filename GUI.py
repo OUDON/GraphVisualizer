@@ -12,6 +12,7 @@ class MainWindow(QtGui.QMainWindow, mainwindow.Ui_MainWindow):
         super(MainWindow, self).__init__(parent)
 
         self.setupUi(self)
+        self.move(200, 50)
         self.initMenuBar()
         self.shortest_path_dialog = ShortestPathDialog(self)
 
@@ -55,6 +56,7 @@ class ShortestPathDialog(QtGui.QDialog, shortest_path_dialog.Ui_ShortestPathDial
     def __init__(self, parent=None):
         super(ShortestPathDialog, self).__init__(parent)
         self.setupUi(self)
+        self.move(200, 350)
         self.parent = parent
         self.button_exec.clicked.connect(self.button_exec_clicked)
 
