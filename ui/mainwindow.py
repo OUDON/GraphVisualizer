@@ -33,6 +33,7 @@ class Ui_MainWindow(object):
         self.verticalLayout = QtGui.QVBoxLayout()
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.text_graph = QtGui.QTextEdit(self.centralwidget)
+        self.text_graph.setAcceptRichText(False)
         self.text_graph.setObjectName(_fromUtf8("text_graph"))
         self.verticalLayout.addWidget(self.text_graph)
         self.horizontalLayout = QtGui.QHBoxLayout()
