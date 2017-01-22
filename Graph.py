@@ -138,8 +138,10 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
         self.width             = width
         self.height            = height
         self.mergin            = mergin
-        self.highlighted_edges = []
         self.__init_paint()
+
+        self.highlighted_edges = []
+        self.algorithm_result  = None
 
         self.node_radius = 20
 
@@ -148,8 +150,8 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
         self.compute_node_position()
         self.resize_graph()
         self.update_edge_pos()
+        self._reset_algorithm_result()
         self.update()
-        self.highlighted_edges = []
 
     def _make_edge(self, frm, to, weight, inverse=False, highlight=False):
         color = QtCore.Qt.red if highlight else QtCore.Qt.black
@@ -240,9 +242,14 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
             self.pos[i][1] -= gy
 
     # Graph Algorithms
+    def _reset_algorithm_result(self):
+        self.algorithm_result  = None
+        self.highlighted_edges = []
+
     def shortest_path(self, s, t):
         dist, path = Graph.shortest_path(self, s, t)
-        self.highlighted_edges = []
+        self._reset_algorithm_result()
+        self.algorithm_result = "最短経路長: {}".format(dist)
 
         for i in range(len(path) - 1):
             u, v = path[i], path[i+1]
@@ -259,7 +266,8 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
 
     def mst(self):
         weight_sum, edges = Graph.mst(self)
-        self.highlighted_edges = []
+        self._reset_algorithm_result()
+        self.algorithm_result = "最小全域木コスト: {}".format(weight_sum)
 
         for e in edges:
             edge = self._make_edge(e[0], e[1], e[2], highlight=True)
@@ -297,6 +305,9 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
             x, y = self.pos[u][0], self.pos[u][1]
             painter.drawText(x-20, y-20, 40, 40, QtCore.Qt.AlignCenter, str(u+1))
 
+        if self.algorithm_result != None:
+            painter.setFont(QtGui.QFont('Helvetica', 20))
+            painter.drawText(10, 0, 500, 20, QtCore.Qt.AlignTop, self.algorithm_result)
 
     def __draw_edges(self, painter):
         for u in range(self.N):
