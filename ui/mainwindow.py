@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'mainwindow.ui'
+# Form implementation generated from reading ui file 'ui/mainwindow.ui'
 #
 # Created by: PyQt4 UI code generator 4.11.4
 #
@@ -66,17 +66,18 @@ class Ui_MainWindow(object):
         self.menu = QtGui.QMenu(self.menubar)
         self.menu.setObjectName(_fromUtf8("menu"))
         MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtGui.QStatusBar(MainWindow)
-        self.statusbar.setObjectName(_fromUtf8("statusbar"))
-        MainWindow.setStatusBar(self.statusbar)
         self.actionSaitannkeiro = QtGui.QAction(MainWindow)
         self.actionSaitannkeiro.setObjectName(_fromUtf8("actionSaitannkeiro"))
         self.actionShortestPath = QtGui.QAction(MainWindow)
         self.actionShortestPath.setObjectName(_fromUtf8("actionShortestPath"))
         self.actionMST = QtGui.QAction(MainWindow)
         self.actionMST.setObjectName(_fromUtf8("actionMST"))
+        self.actionReset = QtGui.QAction(MainWindow)
+        self.actionReset.setObjectName(_fromUtf8("actionReset"))
         self.menu.addAction(self.actionShortestPath)
         self.menu.addAction(self.actionMST)
+        self.menu.addSeparator()
+        self.menu.addAction(self.actionReset)
         self.menubar.addAction(self.menu.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -114,4 +115,5 @@ class Ui_MainWindow(object):
         self.actionSaitannkeiro.setText(_translate("MainWindow", "shortest path", None))
         self.actionShortestPath.setText(_translate("MainWindow", "最短経路", None))
         self.actionMST.setText(_translate("MainWindow", "最小全域木", None))
+        self.actionReset.setText(_translate("MainWindow", "リセット", None))
 

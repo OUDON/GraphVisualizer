@@ -28,6 +28,7 @@ class MainWindow(QtGui.QMainWindow, mainwindow.Ui_MainWindow):
     def initMenuBar(self):
         self.actionShortestPath.triggered.connect(self.open_shortest_path_dialog)
         self.actionMST.triggered.connect(self.mst)
+        self.actionReset.triggered.connect(self.reset_algorithm_result)
 
     def initGraph(self):
         self.graph.load_from_file('data/graph4.txt')
@@ -46,6 +47,9 @@ class MainWindow(QtGui.QMainWindow, mainwindow.Ui_MainWindow):
 
     def mst(self):
         self.graph.mst()
+
+    def reset_algorithm_result(self):
+        self.graph.reset_algorithm_result()
 
 class ShortestPathDialog(QtGui.QDialog, shortest_path_dialog.Ui_ShortestPathDialog):
     def __init__(self, parent=None):

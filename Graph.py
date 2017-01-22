@@ -150,7 +150,7 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
         self.compute_node_position()
         self.resize_graph()
         self.update_edge_pos()
-        self._reset_algorithm_result()
+        self.reset_algorithm_result()
         self.update()
 
     def _make_edge(self, frm, to, weight, inverse=False, highlight=False):
@@ -243,13 +243,14 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
             self.pos[i][1] -= gy
 
     # Graph Algorithms
-    def _reset_algorithm_result(self):
+    def reset_algorithm_result(self):
         self.algorithm_result  = None
         self.highlighted_edges = []
+        self.update()
 
     def shortest_path(self, s, t):
         dist, path = Graph.shortest_path(self, s, t)
-        self._reset_algorithm_result()
+        self.reset_algorithm_result()
         self.algorithm_result = "最短経路長: {}".format(dist)
 
         for i in range(len(path) - 1):
@@ -267,7 +268,7 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
 
     def mst(self):
         weight_sum, edges = Graph.mst(self)
-        self._reset_algorithm_result()
+        self.reset_algorithm_result()
         self.algorithm_result = "最小全域木コスト: {}".format(weight_sum)
 
         for e in edges:

@@ -125,6 +125,8 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionShortestPath"/>
     <addaction name="actionMST"/>
+    <addaction name="separator"/>
+    <addaction name="actionReset"/>
    </widget>
    <addaction name="menu"/>
   </widget>
@@ -141,6 +143,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionMST">
    <property name="text">
     <string>最小全域木</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="text">
+    <string>リセット</string>
    </property>
   </action>
  </widget>
