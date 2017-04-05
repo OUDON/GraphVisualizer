@@ -191,6 +191,8 @@ class VisualizableGraph(QtGui.QGraphicsItem, Graph):
             self.pos[i][1] = (self.pos[i][1] - y_min) * height / y_range + mergin
 
     def compute_node_position(self):
+        # 初期位置に大きく依存する
+        # 最大 10000 ステップを１回より最大 1000 ステップを 10 回の方が上手くいきそう
         for _ in range(10):
             vs = np.zeros([self.N, 2])
             self.pos = np.random.randint(-300, 300, size=(self.N, 2)) * 1.0
